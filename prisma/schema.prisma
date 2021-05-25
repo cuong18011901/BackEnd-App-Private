@@ -1,0 +1,117 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+// Account Model
+model account {
+    id               Int                @id @default(autoincrement())
+    avatar           String?
+    fullName         String?            @map("full_name")
+    email            String?            @unique
+    passcode         String?
+    tell             String?
+    address          String?
+    phone            String             @unique
+    status           Int                @default(0)
+    createdAt        DateTime           @default(now()) @map("created_at")
+    updatedAt        DateTime?          @updatedAt @map("updated_at")
+    deleteAt         DateTime?          @map("delete_at")
+    accountCategory  account_category[]
+    accountPost      account_post[]
+    account_note     account_note[]
+    account_spending account_spending[]
+    account_expense  account_expense[]
+}
+
+// Account Balance Model
+model account_category {
+    id          Int            @id @default(autoincrement())
+    accountId   Int            @map("account_id")
+    code        String?
+    name        String         @default("Category")
+    createdAt   DateTime       @default(now()) @map("created_at")
+    updatedAt   DateTime?      @updatedAt @map("updated_at")
+    deleteAt    DateTime?      @map("delete_at")
+    account     account[]      @relation(fields: [accountId], references: [id])
+    accountPost account_post[]
+    accountPote account_note[]
+}
+
+// Account Transaction Model
+model account_post {
+    id         Int              @id @default(autoincrement())
+    code       String?
+    name       String?
+    title      String?
+    categoryId Int              @default(0) @map("category_id")
+    status     Int              @default(0)
+    createdAt  DateTime         @default(now()) @map("created_at")
+    updatedAt  DateTime?        @updatedAt @map("updated_at")
+    deleteAt   DateTime?        @map("delete_at")
+    accountId  Int              @map("account_id")
+    account    account          @relation(fields: [accountId], references: [id])
+    category   account_category @relation(fields: [categoryId], references: [id])
+
+}
+
+model account_note {
+    id        Int       @id @default(autoincrement())
+    code      String?
+    name      String?
+    title     String?
+    content   String?
+    status    Int       @default(0)
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+    deleteAt  DateTime? @map("delete_at")
+
+    categoryId Int              @default(0) @map("category_id")
+    category   account_category @relation(fields: [categoryId], references: [id])
+
+    accountId Int     @map("account_id")
+    account   account @relation(fields: [accountId], references: [id])
+}
+
+model account_spending {
+    id               Int     @id @default(autoincrement())
+    code             String?
+    name             String?
+    title            String?
+    description      String?
+    totalAmount      Float?
+    totalAmountSpent Float?
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+    deleteAt  DateTime? @map("delete_at")
+
+    accountExpense account_expense[]
+
+    accountId Int     @map("account_id")
+    account   account @relation(fields: [accountId], references: [id])
+}
+
+model account_expense {
+    id          Int       @id @default(autoincrement())
+    code        String?
+    name        String?
+    description String?
+    amount      Float?
+    inputDate   DateTime? @map("input_time")
+
+    createdAt DateTime  @default(now()) @map("created_at")
+    updatedAt DateTime? @updatedAt @map("updated_at")
+    deleteAt  DateTime? @map("delete_at")
+
+    accountId  Int     @map("account_id")
+    account    account @relation(fields: [accountId], references: [id])
+    spendingId Int     @map("spending_id")
+
+    accountSpendingId Int?
+    accountSpending   account_spending? @relation(fields: [accountSpendingId], references: [id])
+}

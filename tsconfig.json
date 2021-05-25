@@ -1,0 +1,32 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "declaration": true,
+        "removeComments": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "allowSyntheticDefaultImports": true,
+        "target": "es2017",
+        "sourceMap": true,
+        "outDir": "./dist",
+        "baseUrl": "./",
+        "incremental": true,
+        "resolveJsonModule": true,
+        "paths": {
+            "@app/repositories": ["libs/repositories"],
+            "@app/repositories/*": ["libs/repositories/*"],
+            "@app/config": ["libs/config/src"],
+            "@app/config/*": ["libs/config/src/*"],
+            "@app/otp": ["libs/otp/src"],
+            "@app/otp/*": ["libs/otp/src/*"],
+            "@app/common": ["libs/common/src"],
+            "@app/common/*": ["libs/common/src/*"],
+            "@app/utils": ["libs/utils/src"],
+            "@app/utils/*": ["libs/utils/src/*"],
+            "@app/caching": ["libs/caching/src"],
+            "@app/caching/*": ["libs/caching/src/*"]
+        }
+    },
+    "include": ["apps/**/*", "libs/**/*"],
+    "exclude": ["node_modules", "**/*.spec.ts"]
+}
