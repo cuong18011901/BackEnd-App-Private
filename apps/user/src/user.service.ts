@@ -1,11 +1,16 @@
 import { AppError } from '@app/common';
-import { CategoryRepo, NoteRepo, PostRepo } from '@app/repositories';
+import { CategoryRepo, NoteRepo, PostRepo, WalletRepo } from '@app/repositories';
 import { Injectable } from '@nestjs/common';
 import { RequestParamDto } from '../dto';
 
 @Injectable()
 export class UserService {
-    constructor(private readonly _category: CategoryRepo, private readonly _post: PostRepo, private readonly _note: NoteRepo) {}
+    constructor(
+        private readonly _category: CategoryRepo,
+        private readonly _post: PostRepo,
+        private readonly _wallet: WalletRepo,
+        private readonly _note: NoteRepo
+    ) {}
 
     async getUser(accountId: number) {
         const output = {
@@ -239,6 +244,79 @@ export class UserService {
     async deleteAllNote(params: RequestParamDto) {
         try {
             await this._note.getInstance().deleteMany({
+                where: { accountId: params.userId }
+            });
+            return 'Deleted!';
+        } catch {
+            return new AppError('ERR', 'Error delete');
+        }
+    }
+
+    // WALLET
+    async getWallet(accountId: number) {
+        const output = await this._wallet.getInstance().findMany({
+            where: { accountId, deleteAt: null },
+            select: { id: true, code: true, name: true, createdAt: true, updatedAt: true },
+            orderBy: { createdAt: 'desc' }
+        });
+        return output;
+    }
+
+    async createWallet(params: RequestParamDto) {
+        const { userId, body } = params;
+        try {
+            const createOperator = this._wallet.getInstance().create({
+                data: { ...(body as any), accountId: userId },
+                select: { id: true, name: true, code: true, accountId: true }
+            });
+            const [output] = await this._wallet.transaction([createOperator]);
+            return output;
+        } catch {
+            return new AppError('ERR', 'Error create wallet!');
+        }
+    }
+
+    async updateWallet(params: RequestParamDto, id?: number) {
+        const { userId, body } = params;
+        try {
+            const record = await this._wallet.getInstance().findUnique({ where: { id: id } });
+            if (record.accountId != userId && record.deleteAt != null) return new AppError('ERR', 'Can not update wallet!');
+            else {
+                const updateOperator = this._wallet.getInstance().update({
+                    data: { ...body },
+                    where: { id: id }
+                });
+                const [output] = await this._wallet.transaction([updateOperator]);
+                return output;
+            }
+        } catch {
+            return new AppError('ERR', 'Error update wallet!');
+        }
+    }
+
+    async deleteWallet(params: RequestParamDto, id?: number) {
+        const { userId } = params;
+        try {
+            const record = await this._wallet.getInstance().findUnique({
+                where: { id: id }
+            });
+            if (record.accountId == userId && record.deleteAt == null) {
+                await this._wallet.getInstance().update({
+                    where: { id: id },
+                    data: {
+                        deleteAt: new Date()
+                    }
+                });
+                return 'Deleted';
+            } else return new AppError('ERR', 'Can not delete wallet');
+        } catch {
+            return new AppError('ERR', 'Error delete wallet!');
+        }
+    }
+
+    async deleteAllWallet(params: RequestParamDto) {
+        try {
+            await this._wallet.getInstance().deleteMany({
                 where: { accountId: params.userId }
             });
             return 'Deleted!';
