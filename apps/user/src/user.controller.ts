@@ -23,6 +23,8 @@ export class UserController {
                 return this._service.getPost(params.userId);
             case 'note':
                 return this._service.getNote(params.userId);
+            case 'wallet':
+                return this._service.getWallet(params.userId);
             default:
                 break;
         }
@@ -39,6 +41,8 @@ export class UserController {
                 return this._service.createPost(params);
             case 'note':
                 return this._service.createNote(params);
+            case 'wallet':
+                return this._service.createWallet(params);
             default:
                 break;
         }
@@ -55,6 +59,8 @@ export class UserController {
                 return this._service.updatePost(params, +path[2]);
             case 'note':
                 return this._service.updateNote(params, +path[2]);
+            case 'wallet':
+                return this._service.updateWallet(params, +path[2]);
             default:
                 break;
         }
@@ -71,6 +77,8 @@ export class UserController {
                 return this._service.deletePost(params, +path[2]);
             case 'note':
                 return this._service.deleteNote(params, +path[2]);
+            case 'wallet':
+                return this._service.deleteWallet(params, +path[2]);
             default:
                 break;
         }
@@ -87,6 +95,8 @@ export class UserController {
                 return this._service.deleteAllPost(params);
             case 'note':
                 return this._service.deleteAllNote(params);
+            case 'wallet':
+                return this._service.deleteAllWallet(params);
             default:
                 break;
         }
